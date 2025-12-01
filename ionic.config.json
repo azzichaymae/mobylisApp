@@ -1,0 +1,7 @@
+{
+  "name": "mobylisApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
