@@ -1,16 +1,122 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Tab 2
-    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Search Your Route</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div class="content-wrapper">
+    <div class="plan-section">
+      <h2 class="section-title">Plan Your Route</h2>
 
+      <div class="input-group">
+        <div class="input-label">
+          <ion-icon name="location" class="label-icon"></ion-icon>
+          <span>From</span>
+        </div>
+        <ion-input
+          [(ngModel)]="fromLocation"
+          placeholder="Enter starting point"
+          class="location-input">
+        </ion-input>
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">
+          <ion-icon name="location" class="label-icon"></ion-icon>
+          <span>To</span>
+        </div>
+        <ion-input
+          [(ngModel)]="toLocation"
+          placeholder="Enter destination"
+          class="location-input">
+        </ion-input>
+      </div>
+
+      <ion-button 
+        expand="block" 
+        class="search-button"
+        (click)="searchRoutes()">
+        <ion-icon name="search" slot="start"></ion-icon>
+        Search Routes
+      </ion-button>
+    </div>
+
+    <div class="routes-section">
+      <h3 class="routes-title">Available Routes ({{ availableRoutes.length }})</h3>
+
+      <div class="routes-list">
+        <ion-card *ngFor="let route of availableRoutes" class="route-card">
+          <ion-card-content>
+            <div class="route-header" (click)="toggleRoute(route)">
+              <div class="route-main-info">
+                <div class="bus-icon-container">
+                  <ion-icon name="bus" class="bus-icon"></ion-icon>
+                </div>
+                <div class="route-info">
+                  <h4 class="bus-number">Bus {{ route.busNumber }}</h4>
+                  <div class="duration">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>{{ route.duration }} min</span>
+                  </div>
+                </div>
+              </div>
+              <ion-button 
+                fill="clear" 
+                class="toggle-button"
+                [class.expanded]="route.isExpanded">
+                <ion-icon [name]="route.isExpanded ? 'chevron-up' : 'chevron-down'"></ion-icon>
+                <span>{{ route.isExpanded ? 'Hide' : 'Details' }}</span>
+              </ion-button>
+            </div>
+
+            <div class="route-details" *ngIf="route.isExpanded">
+              <div class="stops-section">
+                <div class="stops-header">
+                  <ion-icon name="location" class="section-icon"></ion-icon>
+                  <span class="section-label">Stops ({{ route.stops.length }})</span>
+                </div>
+                <div class="stops-list">
+                  <div 
+                    *ngFor="let stop of route.stops; let isLast = last" 
+                    class="stop-item">
+                    <div class="stop-indicator">
+                      <span 
+                        class="stop-dot" 
+                        [class.highlighted]="stop.isHighlighted">
+                      </span>
+                      <div 
+                        *ngIf="!isLast" 
+                        class="stop-line">
+                      </div>
+                    </div>
+                    <span class="stop-name">{{ stop.name }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="departures-section">
+                <div class="departures-header">
+                  <ion-icon name="time-outline" class="section-icon"></ion-icon>
+                  <span class="section-label">Next Departures</span>
+                </div>
+                <div class="departures-list">
+                  <span 
+                    *ngFor="let time of route.departures" 
+                    class="departure-time">
+                    {{ time }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+  </div>
 </ion-content>

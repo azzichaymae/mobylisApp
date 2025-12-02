@@ -1,0 +1,181 @@
+ion-content {
+  --background: #f5f5f5;
+}
+
+.tabs-container {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: #f5f5f5;
+
+  .tab-button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 24px;
+    background: white;
+    color: #999;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    ion-icon {
+      font-size: 20px;
+    }
+
+    &.active {
+      background: white;
+      color: #333;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+.routes-list {
+  padding: 16px;
+}
+
+.route-card {
+  margin-bottom: 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  ion-card-content {
+    padding: 20px;
+  }
+}
+
+ion-header {
+  ion-button {
+    --color: #333;
+  }
+}
+
+.route-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  .route-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .favorite-icon {
+      color: #fbbf24;
+      font-size: 24px;
+    }
+
+    .duration {
+      font-size: 16px;
+      color: #666;
+    }
+  }
+
+  .delete-button {
+    --color: #999;
+    --padding-start: 8px;
+    --padding-end: 8px;
+
+    ion-icon {
+      font-size: 22px;
+    }
+  }
+}
+
+.route-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  .location-container {
+    flex: 1;
+  }
+
+  .location {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .location-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+
+      &.origin-dot {
+        background: #fbbf24;
+      }
+
+      &.destination-dot {
+        background: #fbbf24;
+      }
+    }
+
+    .location-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+  }
+
+  .location-line {
+    width: 2px;
+    height: 24px;
+    background: #e5e5e5;
+    margin-left: 5px;
+    margin-top: -4px;
+    margin-bottom: -4px;
+  }
+
+  .go-button {
+    --background: #fbbf24;
+    --color: white;
+    --padding-start: 32px;
+    --padding-end: 32px;
+    --border-radius: 24px;
+    height: 48px;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: none;
+    margin-left: 16px;
+  }
+}
+
+.bus-info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #e5e5e5;
+
+  .bus-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    padding: 4px 8px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .bus-route {
+    font-size: 14px;
+    color: #666;
+  }
+}

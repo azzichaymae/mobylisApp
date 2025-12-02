@@ -5,6 +5,10 @@ const routes: Routes = [
   {
     path: '',
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
+  },
+  {
+    path: 'stop-selector',
+    loadChildren: () => import('./stop-selector/stop-selector.module').then( m => m.StopSelectorPageModule)
   }
 ];
 @NgModule({

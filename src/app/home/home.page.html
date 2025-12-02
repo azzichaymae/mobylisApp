@@ -1,16 +1,92 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
+  <ion-toolbar color="light">
+    <ion-avatar
+      ><img src="/assets/mobylis.jpg" alt="Mobylis" height="32"
+    /></ion-avatar>
+
+    <ion-buttons slot="end">
+      <ion-menu-button autoHide="false"></ion-menu-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content fullscreen class="ion-padding">
+  <!-- Hero Section -->
+  <div class="hero">
+    <div class="badge">
+      <ion-icon name="location-outline"></ion-icon>Your Journey Starts Here
+    </div>
+    <h1>
+      Navigate Your City<br />
+      <span class="highlight">With Confidence</span>
+    </h1>
+    <p class="subtitle">
+      Real-time transit information, route planning, and seamless ticketing—all
+      in one place
+    </p>
+  </div>
 
+  <div class="quick-access">
+    <h2>Quick Access</h2>
+
+    <div class="card main-card" (click)="openRoutePlanner()">
+      <ion-icon name="navigate-outline" color="warning"></ion-icon>
+      <h3>Plan Route</h3>
+      <p>Enter your starting point and destination</p>
+      <ion-badge color="warning" class="popular-badge">Most Popular</ion-badge>
+    </div>
+
+    <div class="card" (click)="openRecentJourneys()">
+      <ion-icon name="time-outline" color="warning"></ion-icon>
+      <h3>My Recent Journeys</h3>
+      <p>Quickly revisit your frequent routes</p>
+    </div>
+
+    <div class="card" (click)="openFavorites()">
+      <ion-icon name="heart-outline" color="warning"></ion-icon>
+      <h3>Favorite Routes</h3>
+      <p>Save and access your daily commutes</p>
+    </div>
+    <div class="card" (click)="openAuth()">
+      <ion-icon name="person-circle-outline" color="warning"></ion-icon>
+      <h3>Create Account / Login</h3>
+      <p class="highlight-text">
+        Save your favorite routes, home & work addresses, and access them on any
+        device
+      </p>
+      <ion-badge color="warning" slot="end" class="new-badge">New</ion-badge>
+    </div>
+  </div>
+
+  <!-- Bottom CTA -->
+  <div class="cta-section">
+    <h2>Travel Smarter,<br />Not Harder.</h2>
+    <p>
+      Join thousands of commuters who trust Mobylis for their, daily
+      journeys.<br />
+      Get real-time updates, save favorite routes, and never miss your ride
+      again.
+    </p>
+    <ion-grid >
+      <ion-row>
+        <ion-col size="auto" >
+          <ion-button  color="warning" size="small" href="/tabs/search" >
+      Get Started
+    </ion-button>
+        </ion-col>
+        <ion-col size="6"  >
+          <ion-avatar
+            ><img src="/assets/mobylis.jpg" alt="Mobylis" height="32px"
+          /></ion-avatar>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    
+
+    
+  </div>
+
+  <div class="app-footer">
+    <p>© 2025 Mobylis. Making public transit accessible for everyone.</p>
+  </div>
 </ion-content>

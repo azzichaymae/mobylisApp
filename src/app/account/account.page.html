@@ -1,13 +1,205 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>account</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ selectedMode === 'login' ? 'Login' : 'Create Account' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">account</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div class="content-wrapper">
+    <!-- Profile Avatar -->
+    <div class="profile-avatar">
+      <div class="avatar-circle">
+        <ion-icon name="person" class="avatar-icon"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Login/Register Toggle -->
+    <div class="mode-toggle">
+      <button 
+        class="mode-button"
+        [class.active]="selectedMode === 'login'"
+        (click)="selectMode('login')">
+        Login
+      </button>
+      <button 
+        class="mode-button"
+        [class.active]="selectedMode === 'register'"
+        (click)="selectMode('register')">
+        Register
+      </button>
+    </div>
+
+    <!-- Login Form -->
+    <form class="auth-form" *ngIf="selectedMode === 'login'">
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <div class="input-wrapper">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <ion-input
+            [(ngModel)]="loginEmail"
+            name="loginEmail"
+            type="email"
+            placeholder="Enter your email"
+            class="custom-input">
+          </ion-input>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrapper">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <ion-input
+            [(ngModel)]="loginPassword"
+            name="loginPassword"
+            [type]="showLoginPassword ? 'text' : 'password'"
+            placeholder="Enter your password"
+            class="custom-input">
+          </ion-input>
+          <ion-icon 
+            [name]="showLoginPassword ? 'eye-off-outline' : 'eye-outline'"
+            class="toggle-password"
+            (click)="toggleLoginPasswordVisibility()">
+          </ion-icon>
+        </div>
+      </div>
+
+      <!-- Forgot Password Link -->
+      <div class="forgot-password-container">
+        <a class="forgot-password-link" (click)="forgotPassword()">
+          Forgot password?
+        </a>
+      </div>
+
+      <!-- Login Button -->
+      <ion-button 
+        expand="block" 
+        class="submit-button"
+        (click)="login()">
+        Login
+      </ion-button>
+
+      <!-- Social Login Divider -->
+      <div class="divider">
+        <span class="divider-text">OR CONTINUE WITH</span>
+      </div>
+
+      <!-- Social Login Buttons -->
+      <div class="social-buttons">
+        <button class="social-button" (click)="loginWithGoogle()">
+          <ion-icon name="logo-google"></ion-icon>
+          <span>Google</span>
+        </button>
+        <button class="social-button" (click)="loginWithApple()">
+          <ion-icon name="logo-apple"></ion-icon>
+          <span>Apple</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Registration Form -->
+    <form class="auth-form" *ngIf="selectedMode === 'register'">
+      <!-- Full Name -->
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <div class="input-wrapper">
+          <ion-icon name="person-outline" class="input-icon"></ion-icon>
+          <ion-input
+            [(ngModel)]="fullName"
+            name="fullName"
+            type="text"
+            placeholder="Enter your name"
+            class="custom-input">
+          </ion-input>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <div class="input-wrapper">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <ion-input
+            [(ngModel)]="registerEmail"
+            name="registerEmail"
+            type="email"
+            placeholder="Enter your email"
+            class="custom-input">
+          </ion-input>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrapper">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <ion-input
+            [(ngModel)]="registerPassword"
+            name="registerPassword"
+            [type]="showRegisterPassword ? 'text' : 'password'"
+            placeholder="Enter your password"
+            class="custom-input">
+          </ion-input>
+          <ion-icon 
+            [name]="showRegisterPassword ? 'eye-off-outline' : 'eye-outline'"
+            class="toggle-password"
+            (click)="toggleRegisterPasswordVisibility()">
+          </ion-icon>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <div class="input-wrapper">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <ion-input
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            placeholder="Confirm your password"
+            class="custom-input">
+          </ion-input>
+          <ion-icon 
+            [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"
+            class="toggle-password"
+            (click)="toggleConfirmPasswordVisibility()">
+          </ion-icon>
+        </div>
+      </div>
+
+      <!-- Create Account Button -->
+      <ion-button 
+        expand="block" 
+        class="submit-button"
+        (click)="register()">
+        Create Account
+      </ion-button>
+
+      <!-- Social Login Divider -->
+      <div class="divider">
+        <span class="divider-text">OR CONTINUE WITH</span>
+      </div>
+
+      <!-- Social Login Buttons -->
+      <div class="social-buttons">
+        <button class="social-button" (click)="loginWithGoogle()">
+          <ion-icon name="logo-google"></ion-icon>
+          <span>Google</span>
+        </button>
+        <button class="social-button" (click)="loginWithApple()">
+          <ion-icon name="logo-apple"></ion-icon>
+          <span>Apple</span>
+        </button>
+      </div>
+    </form>
+  </div>
 </ion-content>

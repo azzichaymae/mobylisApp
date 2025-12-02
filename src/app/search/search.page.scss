@@ -1,0 +1,324 @@
+ion-header {
+    ion-button {
+      --color: #333;
+    }
+}
+
+.custom-header {
+  ion-toolbar {
+    --background: #3d3d3d;
+    --color: white;
+ 
+  }
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+
+    .logo-container {
+      width: 48px;
+      height: 48px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      .logo {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    .app-title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: white;
+    }
+  }
+}
+
+ion-content {
+  --background: #f5f5f5;
+}
+
+.content-wrapper {
+  padding: 24px 16px;
+}
+
+.plan-section {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+
+  .section-title {
+    margin: 0 0 24px 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .input-group {
+    margin-bottom: 20px;
+
+    .input-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+
+      .label-icon {
+        color: #fbbf24;
+        font-size: 20px;
+      }
+    }
+
+    .location-input {
+      --background: #f9f9f9;
+      --padding-start: 16px;
+      --padding-end: 16px;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      font-size: 16px;
+      min-height: 48px;
+    }
+  }
+
+  .search-button {
+    --background: #fbbf24;
+    --color: #333;
+    --border-radius: 12px;
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    margin-top: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: none;
+
+    ion-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+.routes-section {
+  .routes-title {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+  }
+}
+
+.route-card {
+  margin-bottom: 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  ion-card-content {
+    padding: 0;
+  }
+}
+
+.route-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  cursor: pointer;
+
+  .route-main-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .bus-icon-container {
+      width: 56px;
+      height: 56px;
+      background: #fff9e6;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .bus-icon {
+        font-size: 28px;
+        color: #fbbf24;
+      }
+    }
+
+    .route-info {
+      .bus-number {
+        margin: 0 0 4px 0;
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+      }
+
+      .duration {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #666;
+        font-size: 14px;
+
+        ion-icon {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  .toggle-button {
+    --color: #fbbf24;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 600;
+
+    &.expanded {
+      ion-icon {
+        transform: rotate(180deg);
+      }
+    }
+
+    ion-icon {
+      font-size: 18px;
+      transition: transform 0.3s ease;
+    }
+  }
+}
+
+.route-details {
+  border-top: 1px solid #e5e5e5;
+  padding: 20px;
+  animation: slideDown 0.3s ease;
+
+  .stops-section {
+    margin-bottom: 24px;
+
+    .stops-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+
+      .section-icon {
+        color: #fbbf24;
+        font-size: 20px;
+      }
+
+      .section-label {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+
+    .stops-list {
+      padding-left: 8px;
+
+      .stop-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 4px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .stop-indicator {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding-top: 4px;
+
+          .stop-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e5e5e5;
+            flex-shrink: 0;
+
+            &.highlighted {
+              background: #fbbf24;
+            }
+          }
+
+          .stop-line {
+            width: 2px;
+            height: 32px;
+            background: #e5e5e5;
+            margin-top: 4px;
+            margin-bottom: 4px;
+          }
+        }
+
+        .stop-name {
+          font-size: 15px;
+          color: #333;
+          padding-top: 2px;
+          line-height: 1.5;
+        }
+      }
+    }
+  }
+
+  .departures-section {
+    .departures-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+
+      .section-icon {
+        color: #fbbf24;
+        font-size: 20px;
+      }
+
+      .section-label {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+
+    .departures-list {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+
+      .departure-time {
+        padding: 8px 16px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
