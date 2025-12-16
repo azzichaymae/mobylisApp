@@ -1,6 +1,9 @@
-import { Component,OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
-
+import { FirestoreService } from '../FirestoreService/firestore-service';
+import { FavoriteRoute } from '../FirestoreService/interfaces';
+import { Observable } from 'rxjs';
+import { AuthService } from '../authService/auth-service';
 interface Route {
   id: string;
   duration: number;
@@ -11,19 +14,17 @@ interface Route {
   isFavorite: boolean;
 }
 
-
-
 @Component({
   selector: 'app-tab3',
   templateUrl: 'favourite.page.html',
   styleUrls: ['favourite.page.scss'],
   standalone: false,
 })
-
 export class FavouritePage {
-
+  private userId: string | null = null;
+  listeFavs!: Observable<FavoriteRoute[]>;
   selectedTab: 'favorites' | 'recent' = 'favorites';
-  
+
   routes: Route[] = [
     {
       id: '1',
@@ -32,7 +33,7 @@ export class FavouritePage {
       destination: 'Airport Terminal',
       buses: [42],
       busRoute: 'Express A',
-      isFavorite: true
+      isFavorite: true,
     },
     {
       id: '2',
@@ -40,7 +41,7 @@ export class FavouritePage {
       origin: 'Central Park',
       destination: 'University Campus',
       buses: [15],
-      isFavorite: true
+      isFavorite: true,
     },
     {
       id: '3',
@@ -48,12 +49,21 @@ export class FavouritePage {
       origin: 'Mall District',
       destination: 'Beach Boulevard',
       buses: [78, 23],
-      isFavorite: true
-    }
+      isFavorite: true,
+    },
   ];
+  constructor(
+    private navCtrl: NavController,
+    private firestore: FirestoreService,
+    private authService: AuthService
+  ) {}
+  async ngOnInit() {
+    this.authService.getCurrentUserId$().subscribe((userId) => {
+      this.userId = userId;
+    });
 
-  constructor(private navCtrl:NavController) {}
-
+    this.listeFavs = this.firestore.getFavs(this.userId!) as Observable<FavoriteRoute[]>;  
+  }
   get filteredRoutes(): Route[] {
     if (this.selectedTab === 'favorites') {
       return this.routes.filter(route => route.isFavorite);
@@ -71,11 +81,10 @@ export class FavouritePage {
 
   goToRoute(route: Route): void {
     console.log('Navigate to route:', route);
-   
+
   }
 
   goBack(): void {
     this.navCtrl.navigateForward('/tabs/home');
-
   }
 }

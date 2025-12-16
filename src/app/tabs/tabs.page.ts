@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../authService/auth-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tabs',
@@ -7,7 +9,12 @@ import { Component } from '@angular/core';
   standalone: false,
 })
 export class TabsPage {
-
-  constructor() {}
-
+  constructor(private auth: AuthService, private route:Router) {}
+  accountTab() {
+    if (this.auth.isAuthenticated$()) {
+      this.route.navigateByUrl('/tabs/account')
+    }else{
+      this.route.navigateByUrl('/tabs/home')
+    }
+  }
 }

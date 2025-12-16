@@ -28,17 +28,17 @@
   </div>
 
   <div class="routes-list">
-    <ion-card *ngFor="let route of filteredRoutes" class="route-card">
+    <ion-card *ngFor="let fav of listeFavs | async" class="route-card">
       <ion-card-content>
         <div class="route-header">
-          <div class="route-info">
+          <!-- <div class="route-info">
             <ion-icon name="star" class="favorite-icon"></ion-icon>
-            <span class="duration">{{ route.duration }} min</span>
-          </div>
+            <span class="duration">{{ fav.duration }} min</span>
+          </div> -->
           <ion-button 
             fill="clear" 
             class="delete-button"
-            (click)="deleteRoute(route.id)">
+            (click)="deleteRoute(fav.id)">
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>
         </div>
@@ -47,26 +47,26 @@
           <div class="location-container">
             <div class="location">
               <span class="location-dot origin-dot"></span>
-              <span class="location-text">{{ route.origin }}</span>
+              <span class="location-text">{{ fav.originStopName }}</span>
             </div>
             <div class="location-line"></div>
             <div class="location">
               <span class="location-dot destination-dot"></span>
-              <span class="location-text">{{ route.destination }}</span>
+              <span class="location-text">{{ fav.destinationStopName }}</span>
             </div>
           </div>
 
-          <ion-button 
+          <!-- <ion-button 
             class="go-button" 
             shape="round"
-            (click)="goToRoute(route)">
+            (click)="goToRoute(fav)">
             Go
-          </ion-button>
+          </ion-button> -->
         </div>
 
-        <div class="bus-info" *ngIf="route.buses && route.buses.length > 0">
-          <span class="bus-number" *ngFor="let bus of route.buses">{{ bus }}</span>
-          <span class="bus-route" *ngIf="route.busRoute">{{ route.busRoute }}</span>
+        <div class="bus-info" *ngIf="fav.buses && fav.buses.length > 0">
+          <span class="bus-number" *ngFor="let bus of fav.buses">{{ bus }}</span>
+          <span class="bus-route" *ngIf="fav.busRoute">{{ fav.busRoute }}</span>
         </div>
       </ion-card-content>
     </ion-card>

@@ -35,7 +35,7 @@
     </div>
 
     <!-- Login Form -->
-    <form class="auth-form" *ngIf="selectedMode === 'login'">
+    <form class="auth-form" *ngIf="selectedMode === 'login'" (ngSubmit)="submitLogin()">
       <!-- Email -->
       <div class="form-group">
         <label class="form-label">Email</label>
@@ -46,7 +46,9 @@
             name="loginEmail"
             type="email"
             placeholder="Enter your email"
-            class="custom-input">
+            class="custom-input"
+            required
+            >
           </ion-input>
         </div>
       </div>
@@ -82,7 +84,7 @@
       <ion-button 
         expand="block" 
         class="submit-button"
-        (click)="login()">
+        type="submit">
         Login
       </ion-button>
 
@@ -180,7 +182,7 @@
       <ion-button 
         expand="block" 
         class="submit-button"
-        (click)="register()">
+        (click)="submitRegister()">
         Create Account
       </ion-button>
 
