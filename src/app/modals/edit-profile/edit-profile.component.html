@@ -1,0 +1,109 @@
+<div class="modal-container">
+  <div class="modal-header">
+    <h2 class="modal-title">Update profile</h2>
+    <ion-icon name="close" class="close-icon" (click)="closeModal()"></ion-icon>
+  </div>
+
+  <div class="modal-content">
+    <form #profileForm="ngForm">
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label class="form-label">Lastname</label>
+          <ion-input
+            [(ngModel)]="profileData.lastName"
+            name="lastName"
+            type="text"
+            class="form-input"
+            [class.focused]="focusedField === 'lastName'"
+            [class.error]="hasError('lastName', profileData.lastName, true)"
+            (ionFocus)="onFieldFocus('lastName')"
+            (ionBlur)="onFieldBlur()"
+            required
+          ></ion-input>
+          <div class="error-message" *ngIf="hasError('lastName', profileData.lastName, true)">
+            {{ getErrorMessage('lastName', profileData.lastName) }}
+          </div>
+        </div>
+                <div class="form-group half-width">
+          <label class="form-label">Firstname</label>
+          <ion-input
+            [(ngModel)]="profileData.firstName"
+            name="firstName"
+            type="text"
+            class="form-input"
+            [class.focused]="focusedField === 'firstName'"
+            [class.error]="hasError('firstName', profileData.firstName, true)"
+            (ionFocus)="onFieldFocus('firstName')"
+            (ionBlur)="onFieldBlur()"
+            required
+          ></ion-input>
+          <div class="error-message" *ngIf="hasError('firstName', profileData.firstName, true)">
+            {{ getErrorMessage('firstName', profileData.firstName) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <ion-input
+          [(ngModel)]="profileData.email"
+          name="email"
+          type="email"
+          class="form-input"
+          [class.focused]="focusedField === 'email'"
+          [class.error]="hasError('email', profileData.email, true)"
+          (ionFocus)="onFieldFocus('email')"
+          (ionBlur)="onFieldBlur()"
+          required
+        ></ion-input>
+        <div class="error-message" *ngIf="hasError('email', profileData.email, true)">
+          {{ getErrorMessage('email', profileData.email) }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Téléphone</label>
+        <ion-input
+          [(ngModel)]="profileData.phone"
+          name="phone"
+          type="tel"
+          class="form-input"
+          [class.focused]="focusedField === 'phone'"
+          (ionFocus)="onFieldFocus('phone')"
+          (ionBlur)="onFieldBlur()"
+        ></ion-input>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Adresse</label>
+        <ion-input
+          [(ngModel)]="profileData.address"
+          name="address"
+          type="text"
+          class="form-input"
+          [class.focused]="focusedField === 'address'"
+          (ionFocus)="onFieldFocus('address')"
+          (ionBlur)="onFieldBlur()"
+        ></ion-input>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <ion-button
+      expand="block"
+      class="save-button"
+      (click)="saveProfile()"
+    >
+      Save
+    </ion-button>
+    <ion-button
+      expand="block"
+      fill="clear"
+      class="cancel-button"
+      (click)="closeModal()"
+    >
+      Cancel
+    </ion-button>
+  </div>
+</div>

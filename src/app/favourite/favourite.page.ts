@@ -1,18 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { NavController } from '@ionic/angular';
+import { Component } from '@angular/core';
+import { AlertController, NavController } from '@ionic/angular';
 import { FirestoreService } from '../FirestoreService/firestore-service';
-import { FavoriteRoute } from '../FirestoreService/interfaces';
-import { Observable } from 'rxjs';
+import { FavoriteRoute, SearchResult } from '../FirestoreService/interfaces';
+import { Observable, of, switchMap, tap } from 'rxjs';
 import { AuthService } from '../authService/auth-service';
-interface Route {
-  id: string;
-  duration: number;
-  origin: string;
-  destination: string;
-  buses?: number[];
-  busRoute?: string;
-  isFavorite: boolean;
-}
 
 @Component({
   selector: 'app-tab3',
@@ -21,70 +12,95 @@ interface Route {
   standalone: false,
 })
 export class FavouritePage {
-  private userId: string | null = null;
   listeFavs!: Observable<FavoriteRoute[]>;
+  searchHistory!: Observable<SearchResult[]>;
+  userId: string = '';
   selectedTab: 'favorites' | 'recent' = 'favorites';
-
-  routes: Route[] = [
-    {
-      id: '1',
-      duration: 45,
-      origin: 'Downtown Station',
-      destination: 'Airport Terminal',
-      buses: [42],
-      busRoute: 'Express A',
-      isFavorite: true,
-    },
-    {
-      id: '2',
-      duration: 20,
-      origin: 'Central Park',
-      destination: 'University Campus',
-      buses: [15],
-      isFavorite: true,
-    },
-    {
-      id: '3',
-      duration: 35,
-      origin: 'Mall District',
-      destination: 'Beach Boulevard',
-      buses: [78, 23],
-      isFavorite: true,
-    },
-  ];
+  isLoggedIn: boolean = false;
+  isLoading = true;
   constructor(
     private navCtrl: NavController,
     private firestore: FirestoreService,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertCtrl: AlertController
   ) {}
   async ngOnInit() {
+    console.log(this.isLoggedIn);
     this.authService.getCurrentUserId$().subscribe((userId) => {
-      this.userId = userId;
+      this.userId = userId!;
+      this.isLoggedIn = true;
     });
+    this.listeFavs = this.authService.getCurrentUserId$().pipe(
+      switchMap((userId) => {
+        if (!userId) {
+          this.isLoading = false;
+          this.isLoggedIn = false;
+          return of([]);
+        }
+        this.isLoggedIn = true;
+        return this.firestore.getFavs(userId);
+      }),
+      tap(() => (this.isLoading = false))
+    );
 
-    this.listeFavs = this.firestore.getFavs(this.userId!) as Observable<FavoriteRoute[]>;  
-  }
-  get filteredRoutes(): Route[] {
-    if (this.selectedTab === 'favorites') {
-      return this.routes.filter(route => route.isFavorite);
-    }
-    return this.routes;
+    this.searchHistory = this.authService.getCurrentUserId$().pipe(
+      switchMap((userId) => {
+        if (!userId) {
+          this.isLoading = false;
+          return of([]);
+        }
+        return this.firestore.getRecentSearches(userId);
+      }),
+      tap(() => (this.isLoading = false))
+    );
   }
 
   selectTab(tab: 'favorites' | 'recent'): void {
     this.selectedTab = tab;
   }
 
-  deleteRoute(routeId: string): void {
-    this.routes = this.routes.filter(route => route.id !== routeId);
-  }
-
-  goToRoute(route: Route): void {
-    console.log('Navigate to route:', route);
-
+  async deleteFav(id: string) {
+    const alert = await this.alertCtrl.create({
+      header: 'Are you sure?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Delete',
+          handler: async () => {
+            await this.firestore.removeFavorite(this.userId, id);
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   goBack(): void {
     this.navCtrl.navigateForward('/tabs/home');
+  }
+  formattedDate(date: Date): string {
+    return this.firestore.formatDate(date);
+  }
+
+  async deleteSearch(id: string) {
+    const alert = await this.alertCtrl.create({
+      header: 'Are you sure?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Delete',
+          handler: async () => {
+            await this.firestore.removeSearch(this.userId, id);
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 }

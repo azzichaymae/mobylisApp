@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FirestoreService } from '../FirestoreService/firestore-service';
 import { AuthService } from '../authService/auth-service';
+import { SelectStopComponent } from '../modals/select-stop/select-stop.component';
+import { ModalController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 import {
   Bus,
   BusStop,
@@ -13,7 +16,7 @@ import { Router } from '@angular/router';
   selector: 'app-plan-route',
   templateUrl: './search.page.html',
   styleUrls: ['./search.page.scss'],
-  standalone:false
+  standalone: false,
 })
 export class SearchPage implements OnInit {
   favoritedRoutes: Set<string> = new Set();
@@ -22,13 +25,11 @@ export class SearchPage implements OnInit {
   toLocation = '';
   private userId: string | null = null;
 
-  // Search results
   availableRoutes: BusRouteInfo[] = [];
   isSearching = false;
   searchPerformed = false;
   noRoutesFound = false;
 
-  // All stops for autocomplete/dropdown
   allStops: BusStop[] = [];
   filteredFromStops: BusStop[] = [];
   filteredToStops: BusStop[] = [];
@@ -36,89 +37,79 @@ export class SearchPage implements OnInit {
   constructor(
     private firestoreService: FirestoreService,
     private authService: AuthService,
-     private router: Router,
+    private router: Router,
+    private toastController: ToastController,
+    private modalController: ModalController
   ) {}
   async ngOnInit() {
     await this.loadAllStops();
-    
-
-    // Subscribe once and store the userId
     this.authService.getCurrentUserId$().subscribe((userId) => {
       this.userId = userId;
     });
   }
-
-  // ==========================================
-  // LOAD ALL STOPS
-  // ==========================================
   async loadAllStops(): Promise<void> {
     try {
       this.allStops = await this.firestoreService.getAllStops();
-      console.log('Loaded stops:', this.allStops.length);
-
     } catch (error) {
       console.error('Error loading stops:', error);
     }
   }
   async addFav(route: BusRouteInfo) {
-   const res =await this.firestoreService.addFavoriteRoute(this.userId!,route)
-   if( res ){
-    alert(res)
-   }
-
-}
-
-  // ==========================================
-  // FILTER STOPS FOR AUTOCOMPLETE
-  // ==========================================
-  filterFromStops(searchTerm: string): void {
-    if (!searchTerm || searchTerm.trim() === '') {
-      this.filteredFromStops = [];
+    if (!this.userId) {
+      const toast = await this.toastController.create({
+        message: 'You must be logged in to add favorites',
+        icon: 'alert-circle',
+        duration: 2500,
+        position: 'top',
+      });
+      await toast.present();
       return;
     }
-
-    this.filteredFromStops = this.allStops.filter((stop) =>
-      stop.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const res = await this.firestoreService.addFavoriteRoute(
+      this.userId!,
+      route
     );
+    
+      const toast = await this.toastController.create({
+          message: res ? 'Route added to favorites' : 'Route is already in favorites',
+          icon:  res ? 'heart' : 'alert-circle',
+          duration: 2500,
+          position: 'bottom',
+          
+        });
+        await toast.present();
+    
   }
 
-  filterToStops(searchTerm: string): void {
-    if (!searchTerm || searchTerm.trim() === '') {
-      this.filteredToStops = [];
-      return;
+  async openStopSelector(type: 'from' | 'to') {
+    const modal = await this.modalController.create({
+      component: SelectStopComponent,
+      componentProps: {
+        title: type === 'from' ? 'Select Starting Point' : 'Select Destination',
+        selectedStop: type === 'from' ? this.fromLocation : this.toLocation,
+      },
+    });
+
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'select' && data) {
+      if (type === 'from') {
+        this.fromLocation = data.name;
+      } else {
+        this.toLocation = data.name;
+      }
     }
-
-    this.filteredToStops = this.allStops.filter((stop) =>
-      stop.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
   }
 
-  // ==========================================
-  // SELECT STOP FROM AUTOCOMPLETE
-  // ==========================================
-  selectFromStop(stop: BusStop): void {
-    this.fromLocation = stop.name;
-    this.filteredFromStops = [];
-  }
-
-  selectToStop(stop: BusStop): void {
-    this.toLocation = stop.name;
-    this.filteredToStops = [];
-  }
-
-  // ==========================================
-  // MAIN SEARCH FUNCTION - UPDATED VERSION
-  // ==========================================
   async searchRoutes(): Promise<void> {
-    // Validation
     if (!this.fromLocation || !this.toLocation) {
-      console.error('Please enter both origin and destination');
-      // Show error message to user (use Ionic Toast or Alert)
+      this.firestoreService.showToast('Please enter both origin and destination', 'medium');
       return;
     }
-
     if (this.fromLocation === this.toLocation) {
-      console.error('Origin and destination cannot be the same');
+      this.firestoreService.showToast('Origin and destination cannot be the same', 'medium');
       return;
     }
 
@@ -128,14 +119,6 @@ export class SearchPage implements OnInit {
       this.noRoutesFound = false;
       this.availableRoutes = [];
 
-      console.log(
-        'Searching routes from:',
-        this.fromLocation,
-        'to:',
-        this.toLocation
-      );
-
-      // Step 1: Find stops by name
       const originStop = this.allStops.find(
         (stop) => stop.name.toLowerCase() === this.fromLocation.toLowerCase()
       );
@@ -144,34 +127,30 @@ export class SearchPage implements OnInit {
       );
 
       if (!originStop || !destinationStop) {
-        console.error('One or both stops not found');
+        this.firestoreService.showToast('One or both stops not found', 'medium');
         this.noRoutesFound = true;
         this.isSearching = false;
         return;
       }
 
-      // Step 2: Find routes between these stops
       const buses = await this.firestoreService.findRoutes(
         originStop.id,
         destinationStop.id
       );
 
       if (buses.length === 0) {
-        console.log('No routes found');
+        this.firestoreService.showToast('No routes found', 'medium');
         this.noRoutesFound = true;
         this.isSearching = false;
         this.searchPerformed = true;
         return;
       }
-
-      // Step 3: Build route information with stops
       this.availableRoutes = await this.buildRouteInfo(
         buses,
         originStop.id,
         destinationStop.id
       );
 
-      // Step 4: Save to recent searches (if user is logged in)
       const userId = this.authService.getCurrentUserId$();
       if (this.userId) {
         await this.firestoreService.addRecentSearch(this.userId, {
@@ -180,10 +159,8 @@ export class SearchPage implements OnInit {
           destinationStopId: destinationStop.id,
           destinationStopName: destinationStop.name,
         });
-        console.log('Search saved to history');
       }
 
-      console.log('Found routes:', this.availableRoutes);
       this.searchPerformed = true;
     } catch (error) {
       console.error('Error searching routes:', error);
@@ -193,30 +170,22 @@ export class SearchPage implements OnInit {
     }
   }
 
-  // ==========================================
-  // BUILD ROUTE INFORMATION
-  // ==========================================
   private async buildRouteInfo(
     buses: Bus[],
     originStopId: string,
     destinationStopId: string
   ): Promise<BusRouteInfo[]> {
     const routeInfoPromises = buses.map(async (bus) => {
-      // Get the segment of stops between origin and destination
       const originIndex = bus.stops.indexOf(originStopId);
       const destinationIndex = bus.stops.indexOf(destinationStopId);
 
-      // Extract stops in this route segment
       const routeStopIds = bus.stops.slice(originIndex, destinationIndex + 1);
 
-      // Fetch stop details
       const stopDetailsPromises = routeStopIds.map((stopId) =>
-        this.firestoreService.getStopById(stopId),
-
+        this.firestoreService.getStopById(stopId)
       );
       const stopDetails = await Promise.all(stopDetailsPromises);
 
-      // Build stop info with highlight
       const stopsInfo: BusStopInfo[] = stopDetails
         .filter((stop) => stop !== null)
         .map((stop, index) => ({
@@ -236,16 +205,10 @@ export class SearchPage implements OnInit {
     return await Promise.all(routeInfoPromises);
   }
 
-  // ==========================================
-  // TOGGLE ROUTE EXPANSION
-  // ==========================================
   toggleRoute(route: BusRouteInfo): void {
     route.isExpanded = !route.isExpanded;
   }
 
-  // ==========================================
-  // CLEAR SEARCH
-  // ==========================================
   clearSearch(): void {
     this.fromLocation = '';
     this.toLocation = '';
@@ -256,34 +219,7 @@ export class SearchPage implements OnInit {
     this.filteredToStops = [];
   }
 
-
-  async saveFavorite(route: any) {
-  const userId = this.authService.getCurrentUserId$();
-  
-  if (!userId) {
-    // Show login prompt
-    alert('Please login to save favorites');
-    this.router.navigate(['/login']);
-    return;
-  }
-  
-  // User is logged in, proceed
-  // await this.firestoreService.addFavoriteRoute(userId, route);
-}
-  // ==========================================
-  // SWAP ORIGIN AND DESTINATION
-  // ==========================================
-  swapLocations(): void {
-    const temp = this.fromLocation;
-    this.fromLocation = this.toLocation;
-    this.toLocation = temp;
-  }
-
-  // ==========================================
-  // GO BACK
-  // ==========================================
   goBack(): void {
-    // Implement navigation back
-   this.router.navigateByUrl("/tabs/home")
+    this.router.navigateByUrl('/tabs/home');
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -11,76 +11,107 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
-  limit,
   Timestamp,
-  CollectionReference,
-  DocumentData,
-  collectionData,
+  onSnapshot,
 } from '@angular/fire/firestore';
 
-import { Observable, from, map, of, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 import {
   User,
   FavoriteRoute,
-  RecentSearch,
   Bus,
   BusStop,
-  Route,
-  CreateFavoriteRouteDTO,
   CreateRecentSearchDTO,
   UpdateUserDTO,
   BusRouteInfo,
+  SearchResult,
 } from './interfaces';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-
+import { LoadingController, ToastController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FirestoreService {
-  constructor(private firestore: Firestore,private Nativefirestore: AngularFirestore,) {}
+  private firestore = inject(Firestore);
+  private loadingController = inject(LoadingController);
+  private toastController = inject(ToastController);
 
-  // ==========================================
-  // USER OPERATIONS
-  // ==========================================
 
-  // Create user profile
-  async createUserProfile(
-    userId: string,
-    userData: Partial<User>
-  ): Promise<void> {
-    const userRef = doc(this.firestore, `users/${userId}`);
-    await setDoc(userRef, {
-      ...userData,
-      uid: userId,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+ async createUserProfile(uid: string, userData: User): Promise<void> {
+    try {
+      const userRef = doc(this.firestore, `users/${uid}`);
+      await setDoc(userRef, userData);
+    } catch (error) {
+      console.error( error);
+      throw error;
+    }
+  }
+
+  getUserProfile(userId: string): Observable<User> {
+    return new Observable<User>((observer) => {
+      const userRef = doc(this.firestore, `users/${userId}`);
+      const unsubscribe = onSnapshot(
+        userRef,
+        (docSnap) => {
+          if (docSnap.exists()) {
+            observer.next(docSnap.data() as User);
+          }
+        },
+        (error) => observer.error(error)
+      );
+
+      return () => unsubscribe();
     });
   }
 
-  // Get user profile
-  async getUserProfile(userId: string): Promise<User | null> {
-    const userRef = doc(this.firestore, `users/${userId}`);
-    const userSnap = await getDoc(userRef);
-
-    if (userSnap.exists()) {
-      return userSnap.data() as User;
+async getUserProfileOnce(uid: string): Promise<User | null> {
+    try {
+      const userRef = doc(this.firestore, `users/${uid}`);
+      const userSnap = await getDoc(userRef);
+      
+      if (userSnap.exists()) {
+        return userSnap.data() as User;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error( error);
+      throw error;
     }
-    return null;
   }
 
-  // Update user profile
   async updateUserProfile(
     userId: string,
     userData: UpdateUserDTO
   ): Promise<void> {
-    const userRef = doc(this.firestore, `users/${userId}`);
-    await updateDoc(userRef, {
-      ...userData,
-      updatedAt: Timestamp.now(),
+    const loading = await this.loadingController.create({
+      message: 'Updating profile...',
+      spinner: 'crescent',
     });
+    await loading.present();
+    try {
+      const userRef = doc(this.firestore, `users/${userId}`);
+      await updateDoc(userRef, {
+        ...userData,
+        updatedAt: Timestamp.now(),
+      });
+      await loading.dismiss();
+    } catch (error) {
+      await loading.dismiss();
+      await this.showToast('Error while updating profile', 'danger');
+    }
   }
+
+  async showToast(message: string, color: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2000,
+      color: color,
+      position: 'top',
+    });
+    await toast.present();
+  }
+
   async getAllStops(): Promise<BusStop[]> {
     const stopsCollection = collection(this.firestore, 'stops');
     const querySnapshot = await getDocs(stopsCollection);
@@ -98,7 +129,6 @@ export class FirestoreService {
     try {
       const busesCollection = collection(this.firestore, 'buses');
 
-      // Query only active buses
       const q = query(busesCollection, where('isActive', '==', true));
       const querySnapshot = await getDocs(q);
 
@@ -135,35 +165,26 @@ export class FirestoreService {
     destinationStopId: string
   ): Promise<Bus[]> {
     try {
-      console.log(
-        `Finding routes from ${originStopId} to ${destinationStopId}`
-      );
-
-      // Step 1: Get all active buses
       const buses = await this.getAllBuses();
 
-      // Step 2: Filter buses that contain both stops in correct order
       const validBuses = buses.filter((bus) => {
-        // Find indices of origin and destination in the bus stops array
         const originIndex = bus.stops.indexOf(originStopId);
         const destinationIndex = bus.stops.indexOf(destinationStopId);
 
-        // Valid if:
-        // 1. Both stops exist in the route (index !== -1)
-        // 2. Destination comes AFTER origin (destinationIndex > originIndex)
-        const isValid =
-          originIndex !== -1 &&
-          destinationIndex !== -1 &&
-          destinationIndex > originIndex;
+        const bothStopsExist = originIndex !== -1 && destinationIndex !== -1;
+        const differentStops = originIndex !== destinationIndex;
+
+        const isValid = bothStopsExist && differentStops;
 
         if (isValid) {
-          console.log(`✅ Bus ${bus.busNumber} serves this route`);
+          const direction =
+            destinationIndex > originIndex ? 'forward' : 'backward';
         }
 
         return isValid;
       });
 
-      console.log(`Found ${validBuses.length} valid routes`);
+      console.log(`Found ${validBuses.length} valid route(s)`);
       return validBuses;
     } catch (error) {
       console.error('Error finding routes:', error);
@@ -176,16 +197,12 @@ export class FirestoreService {
     searchData: CreateRecentSearchDTO
   ): Promise<string> {
     try {
-      console.log('Adding recent search for user:', userId);
 
-      // Step 1: Reference to user's recentSearches subcollection
-      // Path: users/{userId}/recentSearches
       const recentSearchesRef = collection(
         this.firestore,
         `users/${userId}/recentSearches`
       );
 
-      // Step 2: Check if this exact search already exists
       const q = query(
         recentSearchesRef,
         where('originStopId', '==', searchData.originStopId),
@@ -193,16 +210,13 @@ export class FirestoreService {
       );
       const existingSearches = await getDocs(q);
 
-      // Step 3: Delete existing duplicate searches
       if (!existingSearches.empty) {
-        console.log('Removing duplicate search');
         const deletePromises = existingSearches.docs.map((doc) =>
           deleteDoc(doc.ref)
         );
         await Promise.all(deletePromises);
       }
 
-      // Step 4: Add new search with timestamp
       const docRef = await addDoc(recentSearchesRef, {
         userId: userId,
         originStopId: searchData.originStopId,
@@ -212,10 +226,7 @@ export class FirestoreService {
         searchedAt: Timestamp.now(),
       });
 
-      console.log('Recent search added with ID:', docRef.id);
 
-      // Step 5: Limit to last 10 searches
-      // await this.limitRecentSearches(userId, 10);
 
       return docRef.id;
     } catch (error) {
@@ -241,10 +252,8 @@ export class FirestoreService {
   async addFavoriteRoute(
     userId: string,
     routeData: BusRouteInfo
-  ): Promise<string> {
+  ): Promise<boolean> {
     try {
-      console.log('Adding favorite route for user:', userId);
-
       const favoritesRef = collection(
         this.firestore,
         `users/${userId}/favoriteRoutes`
@@ -258,7 +267,7 @@ export class FirestoreService {
       const destinationStopName = destinationStop.name;
       const originStopId = originStop.stopId;
       const originStopName = originStop.name;
-      const busRoute = routeData.routeName
+      const busRoute = routeData.routeName;
 
       const q = query(
         favoritesRef,
@@ -268,10 +277,9 @@ export class FirestoreService {
       const existing = await getDocs(q);
 
       if (!existing.empty) {
-        return "Route already favorited";
+        return false;
       }
 
-      // Add new favorite
       const docRef = await addDoc(favoritesRef, {
         userId: userId,
         originStopId: originStopId,
@@ -284,60 +292,73 @@ export class FirestoreService {
         createdAt: Timestamp.now(),
       });
 
-      console.log('Favorite route added with ID:', docRef.id);
-      return "Favorite route added successfully";
+      return true;
     } catch (error) {
       console.error('Error adding favorite route:', error);
       throw error;
     }
   }
 
-  async getFavoriteRoutes(userId: string) {
-    try {
-      const favoritesRef = collection(
+  getFavs(userID: string): Observable<FavoriteRoute[]> {
+    return new Observable<FavoriteRoute[]>((observer) => {
+      const favsRef = collection(
         this.firestore,
-        `users/${userId}/favoriteRoutes`
+        'users',
+        userID,
+        'favoriteRoutes'
       );
 
-      // Get all favorites ordered by creation date (newest first)
-      const q = query(favoritesRef, orderBy('createdAt', 'desc'));
+      const q = query(favsRef);
 
-      const querySnapshot = await getDocs(q);
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const favs = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...(doc.data() as Omit<FavoriteRoute, 'id'>),
+          }));
+          observer.next(favs);
+        },
+        (error) => observer.error(error)
+      );
 
-      const favorites: FavoriteRoute[] = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        userId: doc.data()['userId'],
-        originStopId: doc.data()['originStopId'],
-        originStopName: doc.data()['originStopName'],
-        destinationStopId: doc.data()['destinationStopId'],
-        destinationStopName: doc.data()['destinationStopName'],
-        buses: doc.data()['buses'],
-        busRoute: doc.data()['busRoute'],
-        isFavorite: doc.data()['isFavorite'],
-        createdAt: doc.data()['createdAt']?.toDate() || new Date(),
-      }));
-
-      console.log(`Loaded ${favorites.length} favorite routes`);
-      return favorites;
-    } catch (error) {
-      console.error('Error getting favorite routes:', error);
-      throw error;
-    }
+      return () => unsubscribe();
+    });
   }
 
- getFavs(userID: string){
-  // const favRoutesRef = collection(this.firestore, `users/${userID}/favoriteRoutes`);
-  // return (
-  //   collectionData(favRoutesRef, { idField: 'id' }) as Observable<FavoriteRoute[]>).pipe(
-  //   tap(data => console.log('Favorites:', data))
-  // );
-  return this.Nativefirestore.collection(`users/${userID}/favoriteRoutes`).valueChanges({ idField: 'id' });
-}
- deleteRoute(userID: string, routeID: string): Promise<void> {
-    const routeDocRef = doc(this.firestore, `users/${userID}/favoriteRoutes/${routeID}`);
-    return deleteDoc(routeDocRef);
+  getRecentSearches(userId: string): Observable<SearchResult[]> {
+    return new Observable<SearchResult[]>((observer) => {
+      const recentSearchesRef = collection(
+        this.firestore,
+        'users',
+        userId,
+        'recentSearches'
+      );
+      const q = query(recentSearchesRef);
+
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const searches = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...(doc.data() as Omit<SearchResult, 'id'>),
+          }));
+          observer.next(searches);
+        },
+        (error) => observer.error(error)
+      );
+      return () => unsubscribe();
+    });
   }
-  async removeFavoriteRoute(userId: string, routeId: string): Promise<void> {
+  removeSearch(userId: string, searchId: string): Promise<void> {
+    const searchRef = doc(
+      this.firestore,
+      `users/${userId}/recentSearches/${searchId}`
+    );
+    return deleteDoc(searchRef);
+  }
+
+  async removeFavorite(userId: string, routeId: string): Promise<void> {
     try {
       const routeRef = doc(
         this.firestore,
@@ -352,28 +373,17 @@ export class FirestoreService {
     }
   }
 
-  async isRouteFavorite(
-    userId: string,
-    originStopId: string,
-    destinationStopId: string
-  ): Promise<boolean> {
-    try {
-      const favoritesRef = collection(
-        this.firestore,
-        `users/${userId}/favoriteRoutes`
-      );
+  formatDate(value: Date | Timestamp | null | undefined): string {
+    if (!value) return '';
 
-      const q = query(
-        favoritesRef,
-        where('originStopId', '==', originStopId),
-        where('destinationStopId', '==', destinationStopId)
-      );
+    let date: Date;
 
-      const querySnapshot = await getDocs(q);
-      return !querySnapshot.empty;
-    } catch (error) {
-      console.error('Error checking if route is favorite:', error);
-      return false;
+    if (value instanceof Timestamp) {
+      date = value.toDate();
+    } else {
+      date = value;
     }
+
+    return date.toLocaleDateString();
   }
 }

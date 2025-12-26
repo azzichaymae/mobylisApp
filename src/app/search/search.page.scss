@@ -133,12 +133,12 @@ ion-content {
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  cursor: pointer;
 
   .route-main-info {
     display: flex;
     align-items: center;
     gap: 16px;
+    flex: 1;
 
     .bus-icon-container {
       width: 56px;
@@ -148,6 +148,7 @@ ion-content {
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
 
       .bus-icon {
         font-size: 28px;
@@ -157,8 +158,8 @@ ion-content {
 
     .route-info {
       .bus-number {
-        margin: 0 0 4px 0;
-        font-size: 20px;
+        margin: 0;
+        font-size: 15px;
         font-weight: 700;
         color: #333;
       }
@@ -177,25 +178,41 @@ ion-content {
     }
   }
 
-  .toggle-button {
-    --color: #fbbf24;
-    --padding-start: 12px;
-    --padding-end: 12px;
+  .action-buttons {
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: 14px;
-    font-weight: 600;
+    gap: 0;
+    flex-shrink: 0;
 
-    &.expanded {
+    .fav-button {
+      --color: #ff6b6b;
+      margin: 0;
+      
       ion-icon {
-        transform: rotate(180deg);
+        font-size: 22px;
       }
     }
- 
-    ion-icon {
-      font-size: 18px;
-      transition: transform 0.3s ease;
+
+    .toggle-button {
+      --color: #fbbf24;
+      --padding-start: 8px;
+      --padding-end: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      margin: 0;
+
+      ion-icon {
+        font-size: 18px;
+        margin-right: 4px;
+      }
+
+      span {
+        margin-left: 0;
+      }
+
+      &.expanded {
+        --color: #666;
+      }
     }
   }
 }
@@ -206,8 +223,6 @@ ion-content {
   animation: slideDown 0.3s ease;
 
   .stops-section {
-    margin-bottom: 24px;
-
     .stops-header {
       display: flex;
       align-items: center;
@@ -275,50 +290,16 @@ ion-content {
       }
     }
   }
-
-  .departures-section {
-    .departures-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-
-      .section-icon {
-        color: #fbbf24;
-        font-size: 20px;
-      }
-
-      .section-label {
-        font-size: 16px;
-        font-weight: 600;
-        color: #333;
-      }
-    }
-
-    .departures-list {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-
-      .departure-time {
-        padding: 8px 16px;
-        background: #f9f9f9;
-        border-radius: 8px;
-        font-size: 15px;
-        font-weight: 600;
-        color: #333;
-      }
-    }
-  }
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    max-height: 0;
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;
-    max-height: 1000px;
+    transform: translateY(0);
   }
 }
+

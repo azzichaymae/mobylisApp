@@ -3,38 +3,45 @@ import { RouterModule, Routes } from '@angular/router';
 import { TabsPage } from './tabs.page';
 
 const routes: Routes = [
+
   {
     path: 'tabs',
     component: TabsPage,
     children: [
       {
         path: 'home',
-        loadChildren: () => import('../home/home.module').then(m => m.HomePageModule)
+        loadChildren: () =>
+          import('../home/home.module').then((m) => m.HomePageModule),
       },
       {
         path: 'search',
-        loadChildren: () => import('../search/search.module').then(m => m.SearchPageModule)
+        loadChildren: () =>
+          import('../search/search.module').then((m) => m.SearchPageModule),
       },
       {
         path: 'favourite',
-        loadChildren: () => import('../favourite/favourite.module').then(m => m.FavouritePageModule)
+        loadChildren: () =>
+          import('../favourite/favourite.module').then(
+            (m) => m.FavouritePageModule
+          ),
       },
-       {
+      {
         path: 'account',
-        loadChildren: () => import('../account/account.module').then(m => m.AccountPageModule)
+        loadChildren: () =>
+      import('../account/account.module').then((m) => m.AccountPageModule),
       },
       {
         path: '',
         redirectTo: '/tabs/home',
-        pathMatch: 'full'
-      }
-    ]
+        pathMatch: 'full',
+      },
+    ],
   },
   {
     path: '',
     redirectTo: '/tabs/home',
-    pathMatch: 'full'
-  }
+    pathMatch: 'full',
+  },
 ];
 
 @NgModule({

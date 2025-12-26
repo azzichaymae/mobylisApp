@@ -9,66 +9,140 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content *ngIf="isLoggedIn; else loginRequired">
   <div class="tabs-container">
-    <button 
-      class="tab-button" 
+    <button
+      class="tab-button"
       [class.active]="selectedTab === 'favorites'"
-      (click)="selectTab('favorites')">
+      (click)="selectTab('favorites')"
+    >
       <ion-icon name="heart-outline"></ion-icon>
       Favorites
     </button>
-    <button 
-      class="tab-button" 
+    <button
+      class="tab-button"
       [class.active]="selectedTab === 'recent'"
-      (click)="selectTab('recent')">
+      (click)="selectTab('recent')"
+    >
       <ion-icon name="time-outline"></ion-icon>
       Recent
     </button>
   </div>
-
-  <div class="routes-list">
-    <ion-card *ngFor="let fav of listeFavs | async" class="route-card">
-      <ion-card-content>
-        <div class="route-header">
-          <!-- <div class="route-info">
-            <ion-icon name="star" class="favorite-icon"></ion-icon>
-            <span class="duration">{{ fav.duration }} min</span>
-          </div> -->
-          <ion-button 
-            fill="clear" 
-            class="delete-button"
-            (click)="deleteRoute(fav.id)">
-            <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
-        </div>
-
-        <div class="route-details">
-          <div class="location-container">
-            <div class="location">
-              <span class="location-dot origin-dot"></span>
-              <span class="location-text">{{ fav.originStopName }}</span>
+  <div class="routes-list" *ngIf="selectedTab === 'favorites'">
+    <ng-container *ngIf="listeFavs | async as favs; else loading">
+            <div *ngIf="favs.length === 0" class="no-searches-message">
+        <p>No favourite routes found.</p>
+      </div>
+      <ion-list *ngIf="favs.length > 0">
+        <ion-card *ngFor="let fav of favs" class="route-card">
+          <ion-card-content>
+            <div class="route-details">
+              <div class="location-container">
+                <div class="location">
+                  <span class="location-dot origin-dot"></span>
+                  <span class="location-text">{{ fav.originStopName }}</span>
+                </div>
+                <div class="location-line"></div>
+                <div class="location">
+                  <span class="location-dot destination-dot"></span>
+                  <span class="location-text"
+                    >{{ fav.destinationStopName }}</span
+                  >
+                </div>
+              </div>
             </div>
-            <div class="location-line"></div>
-            <div class="location">
-              <span class="location-dot destination-dot"></span>
-              <span class="location-text">{{ fav.destinationStopName }}</span>
+
+            <div class="bus-info" *ngIf="fav.buses && fav.buses.length > 0">
+              <span class="bus-number" *ngFor="let bus of fav.buses"
+                >{{ bus }}</span
+              >
+              <span class="bus-route" *ngIf="fav.busRoute"
+                >{{ fav.busRoute }}</span
+              >
+              <ion-icon
+                (click)="deleteFav(fav.id)"
+                name="trash-outline"
+              ></ion-icon>
             </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-list>
+    </ng-container>
+    <ng-template #loading>
+      <div class="loading-container ion-text-center">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Loading favorites/history...</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="routes-list" *ngIf="selectedTab === 'recent'">
+    <ng-container *ngIf="searchHistory | async as searches; else loading">
+      <div *ngIf="searches.length === 0" class="no-searches-message">
+        <p>No recent searches found.</p>
+      </div>
+      <ion-card class="bus-card" *ngFor="let search of searches">
+        <ion-item lines="none">
+          <div class="icon-wrapper">
+            <ion-icon name="bus-outline"></ion-icon>
           </div>
 
-          <!-- <ion-button 
-            class="go-button" 
-            shape="round"
-            (click)="goToRoute(fav)">
-            Go
-          </ion-button> -->
-        </div>
+          <ion-label>
+            
 
-        <div class="bus-info" *ngIf="fav.buses && fav.buses.length > 0">
-          <span class="bus-number" *ngFor="let bus of fav.buses">{{ bus }}</span>
-          <span class="bus-route" *ngIf="fav.busRoute">{{ fav.busRoute }}</span>
-        </div>
-      </ion-card-content>
-    </ion-card>
+            <h3 class="route">
+              <ion-icon name="location-outline"></ion-icon>
+              {{ search.originStopName }} → {{ search.destinationStopName }}
+            </h3>
+
+            <p class="meta">
+              <ion-icon name="time-outline"></ion-icon>
+              {{formattedDate(search.searchedAt)  }}
+            </p>
+          </ion-label>
+
+          <ion-button fill="clear" slot="end" (click)="deleteSearch(search.id)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-card>
+    </ng-container>
+    <ng-template #loading>
+      <div class="loading-container ion-text-center">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Loading search history...</p>
+      </div>
+    </ng-template>
   </div>
 </ion-content>
+
+<ng-template #loginRequired>
+<div class="login-required-container" >
+  <div class="login-required-card">
+    <div class="icon-wrapper">
+      <ion-icon name="log-in-outline" class="login-icon"></ion-icon>
+    </div>
+    
+    <h2 class="title">Login Required</h2>
+    
+    <p class="message">
+      Please log in to view your favorite routes and recent trips.
+    </p>
+    
+    <ion-button 
+      expand="block" 
+      color="warning" 
+      class="login-button"
+      href="./tabs/account"
+    >
+      <ion-icon name="log-in-outline" slot="start"></ion-icon>
+      Log In to Continue
+    </ion-button>
+  </div>
+</div>
+</ng-template>
+
+
+
+
+

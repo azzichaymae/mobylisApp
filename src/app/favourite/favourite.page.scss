@@ -179,3 +179,162 @@ ion-header {
     color: #666;
   }
 }
+
+
+.bus-card {
+  border-radius: 16px;
+  margin: 12px 0;
+
+  ion-item {
+    --padding-start: 12px;
+    --inner-padding-end: 8px;
+  }
+
+  .icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff4d6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+
+    ion-icon {
+      font-size: 22px;
+      color: #f9c51c;
+    }
+  }
+
+  ion-label {
+    h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    p {
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      color: #777;
+      margin: 2px 0;
+
+      ion-icon {
+        font-size: 14px;
+        margin-right: 4px;
+      }
+    }
+
+    .meta {
+      font-size: 12px;
+      color: #999;
+
+      .dot {
+        margin: 0 6px;
+      }
+    }
+  }
+
+  ion-button {
+    ion-icon {
+      color: #999;
+    }
+  }
+}
+
+.login-required-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: #f5f5f5;
+}
+
+.login-required-card {
+  background: white;
+  border-radius: 24px;
+  padding: 60px 40px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.icon-wrapper {
+  width: 120px;
+  height: 120px;
+  background: #fff9e6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 32px;
+}
+
+.login-icon {
+  font-size: 56px;
+  color: #fbbf24;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+}
+
+.message {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 40px 0;
+}
+
+.login-button {
+  --background: #fbbf24;
+  --background-hover: #f59e0b;
+  --background-activated: #d97706;
+  --border-radius: 12px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  --box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: none;
+  height: 52px;
+  margin: 0;
+
+  ion-icon {
+    font-size: 20px;
+    margin-right: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-required-card {
+    padding: 40px 24px;
+  }
+
+  .icon-wrapper {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 24px;
+  }
+
+  .login-icon {
+    font-size: 48px;
+  }
+
+  .title {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .message {
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+}

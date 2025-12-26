@@ -21,6 +21,8 @@
           [(ngModel)]="fromLocation"
           placeholder="Enter starting point"
           class="location-input"
+          readonly
+          (click)="openStopSelector('from')"
         >
         </ion-input>
       </div>
@@ -34,11 +36,18 @@
           [(ngModel)]="toLocation"
           placeholder="Enter destination"
           class="location-input"
+          readonly
+          (click)="openStopSelector('to')"
         >
         </ion-input>
       </div>
 
-      <ion-button expand="block" class="search-button" (click)="searchRoutes()">
+      <ion-button
+        expand="block"
+        class="search-button"
+        color="warning"
+        (click)="searchRoutes()"
+      >
         <ion-icon name="search" slot="start"></ion-icon>
         Search Routes
       </ion-button>
@@ -51,63 +60,68 @@
 
       <div class="routes-list">
         <ion-card *ngFor="let route of availableRoutes" class="route-card">
-          <ion-card-content>
-            <ion-grid class="route-header">
-              <ion-row>
-                <div class="route-main-info">
-                  <div class="bus-icon-container">
-                    <ion-icon name="bus" class="bus-icon"></ion-icon>
-                  </div>
-                  <div class="route-info">
-                    <h4 class="bus-number">Bus {{ route.busNumber }}</h4>
-                  </div>
-                  
-                </div> 
-                <ion-button (click)="addFav(route)"   shape="round" fill="clear" size="small">
-                  <ion-icon name="heart-outline"></ion-icon>
-                </ion-button>
+        <ion-card-content>
+  <div class="route-header">
+    <div class="route-main-info">
+      <div class="bus-icon-container">
+        <ion-icon name="bus" class="bus-icon"></ion-icon>
+      </div>
+      <div class="route-info">
+        <h4 class="bus-number">Bus {{ route.busNumber }}</h4>
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <ion-button
+        (click)="addFav(route); $event.stopPropagation()"
+        shape="round"
+        fill="clear"
+        size="small"
+        class="fav-button"
+      >
+        <ion-icon name="heart-outline"></ion-icon>
+      </ion-button>
 
-                <ion-button
-                  fill="clear"
-                  class="toggle-button"
-                  [class.expanded]="route.isExpanded"
-                  (click)="toggleRoute(route)"
-                >
-                  <ion-icon
-                    [name]="route.isExpanded ? 'chevron-up' : 'chevron-down'"
-                  ></ion-icon>
-                  <span>{{ route.isExpanded ? 'Hide' : 'Details' }}</span>
-                </ion-button>
-              </ion-row>
-            </ion-grid>
+      <ion-button
+        fill="clear"
+        class="toggle-button"
+        [class.expanded]="route.isExpanded"
+        (click)="toggleRoute(route)"
+        size="small"
+      >
+        <ion-icon
+          [name]="route.isExpanded ? 'chevron-up' : 'chevron-down'"
+        ></ion-icon>
+        <span>{{ route.isExpanded ? 'Hide' : 'Details' }}</span>
+      </ion-button>
+    </div>
+  </div>
 
-            <div class="route-details" *ngIf="route.isExpanded">
-              <div class="stops-section">
-                <div class="stops-header">
-                  <ion-icon name="location" class="section-icon"></ion-icon>
-                  <span class="section-label"
-                    >Stops ({{ route.stops.length }})</span
-                  >
-                </div>
-                <div class="stops-list">
-                  <div
-                    *ngFor="let stop of route.stops; let isLast = last"
-                    class="stop-item"
-                  >
-                    <div class="stop-indicator">
-                      <span
-                        class="stop-dot"
-                        [class.highlighted]="stop.isHighlighted"
-                      >
-                      </span>
-                      <div *ngIf="!isLast" class="stop-line"></div>
-                    </div>
-                    <span class="stop-name">{{ stop.name }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ion-card-content>
+  <div class="route-details" *ngIf="route.isExpanded">
+    <div class="stops-section">
+      <div class="stops-header">
+        <ion-icon name="location" class="section-icon"></ion-icon>
+        <span class="section-label">Stops ({{ route.stops.length }})</span>
+      </div>
+      <div class="stops-list">
+        <div
+          *ngFor="let stop of route.stops; let isLast = last"
+          class="stop-item"
+        >
+          <div class="stop-indicator">
+            <span
+              class="stop-dot"
+              [class.highlighted]="stop.isHighlighted"
+            >
+            </span>
+            <div *ngIf="!isLast" class="stop-line"></div>
+          </div>
+          <span class="stop-name">{{ stop.name }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-card-content>
         </ion-card>
       </div>
     </div>

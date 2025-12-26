@@ -10,11 +10,4 @@ import { Router } from '@angular/router';
 })
 export class TabsPage {
   constructor(private auth: AuthService, private route:Router) {}
-  accountTab() {
-    if (this.auth.isAuthenticated$()) {
-      this.route.navigateByUrl('/tabs/account')
-    }else{
-      this.route.navigateByUrl('/tabs/home')
-    }
-  }
 }

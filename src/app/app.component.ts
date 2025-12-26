@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 @Component({
   selector: 'app-root',
@@ -8,4 +9,5 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   constructor() {}
+  
 }

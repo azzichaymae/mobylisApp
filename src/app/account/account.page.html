@@ -1,207 +1,332 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
+<ng-container *ngIf="isAuthLoading">
+  <div class="auth-loading">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!isAuthLoading">
+<ng-container *ngIf="isLoggedIn; else authForm">
+  <ion-header >
+    <ion-toolbar><ion-buttons slot="start">
       <ion-button (click)="goBack()">
         <ion-icon name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ selectedMode === 'login' ? 'Login' : 'Create Account' }}</ion-title>
-  </ion-toolbar>
-</ion-header>
+      <ion-title>My Account</ion-title>
 
-<ion-content>
-  <div class="content-wrapper">
-    <!-- Profile Avatar -->
-    <div class="profile-avatar">
-      <div class="avatar-circle">
-        <ion-icon name="person" class="avatar-icon"></ion-icon>
-      </div>
+    </ion-toolbar>
+  </ion-header>
+
+
+<ion-content  *ngIf="user$ | async as user">
+
+  <ion-card class="profile-card">
+    <div class="avatar">
+      {{ getInitials(user.fullName) }}
     </div>
 
-    <!-- Login/Register Toggle -->
-    <div class="mode-toggle">
-      <button 
-        class="mode-button"
-        [class.active]="selectedMode === 'login'"
-        (click)="selectMode('login')">
-        Login
-      </button>
-      <button 
-        class="mode-button"
-        [class.active]="selectedMode === 'register'"
-        (click)="selectMode('register')">
-        Register
-      </button>
-    </div>
+    <h2>{{ user.fullName}}</h2>
+    <p>Member since {{ formattedDate(user.createdAt) }}</p>
 
-    <!-- Login Form -->
-    <form class="auth-form" *ngIf="selectedMode === 'login'" (ngSubmit)="submitLogin()">
-      <!-- Email -->
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <div class="input-wrapper">
-          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
-          <ion-input
-            [(ngModel)]="loginEmail"
-            name="loginEmail"
-            type="email"
-            placeholder="Enter your email"
-            class="custom-input"
-            required
-            >
-          </ion-input>
-        </div>
-      </div>
+    <ion-button fill="clear" color="dark" size="small" shape="round" (click)="openEditProfile(user)">
+      <ion-icon name="create-outline" slot="start"></ion-icon>
+      Update profile
+    </ion-button>
+  </ion-card>
 
-      <!-- Password -->
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <div class="input-wrapper">
-          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
-          <ion-input
-            [(ngModel)]="loginPassword"
-            name="loginPassword"
-            [type]="showLoginPassword ? 'text' : 'password'"
-            placeholder="Enter your password"
-            class="custom-input">
-          </ion-input>
-          <ion-icon 
-            [name]="showLoginPassword ? 'eye-off-outline' : 'eye-outline'"
-            class="toggle-password"
-            (click)="toggleLoginPasswordVisibility()">
-          </ion-icon>
-        </div>
-      </div>
+  
 
-      <!-- Forgot Password Link -->
-      <div class="forgot-password-container">
-        <a class="forgot-password-link" (click)="forgotPassword()">
-          Forgot password?
-        </a>
-      </div>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>Personal information</ion-card-subtitle>
+    </ion-card-header>
 
-      <!-- Login Button -->
-      <ion-button 
-        expand="block" 
-        class="submit-button"
-        type="submit">
-        Login
-      </ion-button>
+    <ion-item lines="full">
+      <ion-icon name="person-outline" slot="start"></ion-icon>
+      <ion-label>
+        <p>Fullname</p>
+        <h3>{{ user.fullName }}</h3>
+      </ion-label>
+    </ion-item>
 
-      <!-- Social Login Divider -->
-      <div class="divider">
-        <span class="divider-text">OR CONTINUE WITH</span>
-      </div>
+    <ion-item lines="full">
+      <ion-icon name="mail-outline" slot="start"></ion-icon>
+      <ion-label>
+        <p>Email</p>
+        <h3>{{ user.email }}</h3>
+      </ion-label>
+    </ion-item>
 
-      <!-- Social Login Buttons -->
-      <div class="social-buttons">
-        <button class="social-button" (click)="loginWithGoogle()">
-          <ion-icon name="logo-google"></ion-icon>
-          <span>Google</span>
-        </button>
-        <button class="social-button" (click)="loginWithApple()">
-          <ion-icon name="logo-apple"></ion-icon>
-          <span>Apple</span>
-        </button>
-      </div>
-    </form>
+   
 
-    <!-- Registration Form -->
-    <form class="auth-form" *ngIf="selectedMode === 'register'">
-      <!-- Full Name -->
-      <div class="form-group">
-        <label class="form-label">Full Name</label>
-        <div class="input-wrapper">
-          <ion-icon name="person-outline" class="input-icon"></ion-icon>
-          <ion-input
-            [(ngModel)]="fullName"
-            name="fullName"
-            type="text"
-            placeholder="Enter your name"
-            class="custom-input">
-          </ion-input>
-        </div>
-      </div>
+    <ion-item lines="none">
+      <ion-icon name="calendar-outline" slot="start"></ion-icon>
+      <ion-label>
+        <p>Member since</p>
+        <h3>{{formattedDate(user.createdAt) }}</h3>
+      </ion-label>
+    </ion-item>
+  </ion-card>
 
-      <!-- Email -->
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <div class="input-wrapper">
-          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
-          <ion-input
-            [(ngModel)]="registerEmail"
-            name="registerEmail"
-            type="email"
-            placeholder="Enter your email"
-            class="custom-input">
-          </ion-input>
-        </div>
-      </div>
+   <div class="stats">
 
-      <!-- Password -->
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <div class="input-wrapper">
-          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
-          <ion-input
-            [(ngModel)]="registerPassword"
-            name="registerPassword"
-            [type]="showRegisterPassword ? 'text' : 'password'"
-            placeholder="Enter your password"
-            class="custom-input">
-          </ion-input>
-          <ion-icon 
-            [name]="showRegisterPassword ? 'eye-off-outline' : 'eye-outline'"
-            class="toggle-password"
-            (click)="toggleRegisterPasswordVisibility()">
-          </ion-icon>
-        </div>
-      </div>
-
-      <!-- Confirm Password -->
-      <div class="form-group">
-        <label class="form-label">Confirm Password</label>
-        <div class="input-wrapper">
-          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
-          <ion-input
-            [(ngModel)]="confirmPassword"
-            name="confirmPassword"
-            [type]="showConfirmPassword ? 'text' : 'password'"
-            placeholder="Confirm your password"
-            class="custom-input">
-          </ion-input>
-          <ion-icon 
-            [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"
-            class="toggle-password"
-            (click)="toggleConfirmPasswordVisibility()">
-          </ion-icon>
-        </div>
-      </div>
-
-      <!-- Create Account Button -->
-      <ion-button 
-        expand="block" 
-        class="submit-button"
-        (click)="submitRegister()">
-        Create Account
-      </ion-button>
-
-      <!-- Social Login Divider -->
-      <div class="divider">
-        <span class="divider-text">OR CONTINUE WITH</span>
-      </div>
-
-      <!-- Social Login Buttons -->
-      <div class="social-buttons">
-        <button class="social-button" (click)="loginWithGoogle()">
-          <ion-icon name="logo-google"></ion-icon>
-          <span>Google</span>
-        </button>
-        <button class="social-button" (click)="loginWithApple()">
-          <ion-icon name="logo-apple"></ion-icon>
-          <span>Apple</span>
-        </button>
-      </div>
-    </form>
+    <ion-card>
+      <h1>{{listeFavsLength$ |async}}</h1>
+      <p>Favorites</p>
+    </ion-card>
   </div>
+
+
+   <div  class="ion-padding">
+    <ion-button expand="block"  
+          class="logout-button" color="warning" (click)="submitLogout()">
+   Sign Out
+  </ion-button>
+   </div>
+  
+
 </ion-content>
+</ng-container>
+
+<ng-template #authForm>
+  <ion-header>
+    <ion-toolbar><ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+      <ion-title>
+        {{ selectedMode === 'login' ? 'Login' : 'Create Account' }}
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+   <div class="content-wrapper">
+      <div class="profile-avatar">
+        <div class="avatar-circle">
+          <ion-icon name="person" class="avatar-icon"></ion-icon>
+        </div>
+      </div>
+
+      <div class="mode-toggle">
+        <button
+          class="mode-button"
+          [class.active]="selectedMode === 'login'"
+          (click)="selectMode('login')"
+        >
+          Login
+        </button>
+        <button
+          class="mode-button"
+          [class.active]="selectedMode === 'register'"
+          (click)="selectMode('register')"
+        >
+          Register
+        </button>
+      </div>
+
+      <form
+        class="auth-form"
+        *ngIf="selectedMode === 'login'"
+        (ngSubmit)="submitLogin()"
+        #loginForm="ngForm"
+      >
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <div class="input-wrapper" [class.error]="loginEmailField.invalid && (loginEmailField.touched || loginSubmitted)">
+            <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+            <ion-input
+              [(ngModel)]="loginEmail"
+              name="loginEmail"
+              type="email"
+              placeholder="Enter your email"
+              class="custom-input"
+              required
+              email
+              #loginEmailField="ngModel"
+            >
+            </ion-input>
+          </div>
+          <div class="error-message" *ngIf="loginEmailField.invalid && (loginEmailField.touched || loginSubmitted)">
+            <span *ngIf="loginEmailField.errors?.['required']">Email is required</span>
+            <span *ngIf="loginEmailField.errors?.['email']">Please enter a valid email address</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrapper" [class.error]="loginPasswordField.invalid && (loginPasswordField.touched || loginSubmitted)">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <ion-input
+              [(ngModel)]="loginPassword"
+              name="loginPassword"
+              [type]="showLoginPassword ? 'text' : 'password'"
+              placeholder="Enter your password"
+              class="custom-input"
+              required
+              minlength="6"
+              #loginPasswordField="ngModel"
+            >
+            </ion-input>
+            <ion-icon
+              [name]="showLoginPassword ? 'eye-off-outline' : 'eye-outline'"
+              class="toggle-password"
+              (click)="toggleLoginPasswordVisibility()"
+            >
+            </ion-icon>
+          </div>
+          <div class="error-message" *ngIf="loginPasswordField.invalid && (loginPasswordField.touched || loginSubmitted)">
+            <span *ngIf="loginPasswordField.errors?.['required']">Password is required</span>
+            <span *ngIf="loginPasswordField.errors?.['minlength']">Password must be at least 6 characters</span>
+          </div>
+        </div>
+
+        <div class="forgot-password-container">
+          <a class="forgot-password-link" (click)="forgotPassword(this.loginEmail)">
+            Forgot password?
+          </a>
+        </div>
+
+        <ion-button expand="block" color="warning" class="submit-button" type="submit">
+          Login
+        </ion-button>
+
+        <div class="divider">
+          <span class="divider-text">OR CONTINUE WITH</span>
+        </div>
+
+        <div class="social-buttons">
+          <button class="social-button" type="button" (click)="loginWithGoogle()">
+            <ion-icon name="logo-google"></ion-icon>
+            <span>Google</span>
+          </button>
+          
+        </div>
+      </form>
+
+      <form class="auth-form" *ngIf="selectedMode === 'register'" #registerForm="ngForm">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <div class="input-wrapper" [class.error]="fullNameField.invalid && (fullNameField.touched || registerSubmitted)">
+            <ion-icon name="person-outline" class="input-icon"></ion-icon>
+            <ion-input
+              [(ngModel)]="fullName"
+              name="fullName"
+              type="text"
+              placeholder="Enter your name"
+              class="custom-input"
+              required
+              minlength="2"
+              #fullNameField="ngModel"
+            >
+            </ion-input>
+          </div>
+          <div class="error-message" *ngIf="fullNameField.invalid && (fullNameField.touched || registerSubmitted)">
+            <span *ngIf="fullNameField.errors?.['required']">Full name is required</span>
+            <span *ngIf="fullNameField.errors?.['minlength']">Name must be at least 2 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <div class="input-wrapper" [class.error]="registerEmailField.invalid && (registerEmailField.touched || registerSubmitted)">
+            <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+            <ion-input
+              [(ngModel)]="registerEmail"
+              name="registerEmail"
+              type="email"
+              placeholder="Enter your email"
+              class="custom-input"
+              required
+              email
+              #registerEmailField="ngModel"
+            >
+            </ion-input>
+          </div>
+          <div class="error-message" *ngIf="registerEmailField.invalid && (registerEmailField.touched || registerSubmitted)">
+            <span *ngIf="registerEmailField.errors?.['required']">Email is required</span>
+            <span *ngIf="registerEmailField.errors?.['email']">Please enter a valid email address</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrapper" [class.error]="registerPasswordField.invalid && (registerPasswordField.touched || registerSubmitted)">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <ion-input
+              [(ngModel)]="registerPassword"
+              name="registerPassword"
+              [type]="showRegisterPassword ? 'text' : 'password'"
+              placeholder="Enter your password"
+              class="custom-input"
+              required
+              minlength="6"
+              #registerPasswordField="ngModel"
+            >
+            </ion-input>
+            <ion-icon
+              [name]="showRegisterPassword ? 'eye-off-outline' : 'eye-outline'"
+              class="toggle-password"
+              (click)="toggleRegisterPasswordVisibility()"
+            >
+            </ion-icon>
+          </div>
+          <div class="error-message" *ngIf="registerPasswordField.invalid && (registerPasswordField.touched || registerSubmitted)">
+            <span *ngIf="registerPasswordField.errors?.['required']">Password is required</span>
+            <span *ngIf="registerPasswordField.errors?.['minlength']">Password must be at least 6 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <div class="input-wrapper" [class.error]="(confirmPasswordField.invalid && (confirmPasswordField.touched || registerSubmitted)) || (registerSubmitted && registerPassword !== confirmPassword)">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <ion-input
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              placeholder="Confirm your password"
+              class="custom-input"
+              required
+              #confirmPasswordField="ngModel"
+            >
+            </ion-input>
+            <ion-icon
+              [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"
+              class="toggle-password"
+              (click)="toggleConfirmPasswordVisibility()"
+            >
+            </ion-icon>
+          </div>
+          <div class="error-message" *ngIf="(confirmPasswordField.invalid && (confirmPasswordField.touched || registerSubmitted)) || ((confirmPasswordField.touched || registerSubmitted) && registerPassword !== confirmPassword)">
+            <span *ngIf="confirmPasswordField.errors?.['required']">Please confirm your password</span>
+            <span *ngIf="!confirmPasswordField.errors?.['required'] && registerPassword !== confirmPassword">Passwords do not match</span>
+          </div>
+        </div>
+
+        <ion-button
+          expand="block"
+          color="warning"
+          class="submit-button"
+          (click)="submitRegister()"
+        >
+          Create Account
+        </ion-button>
+
+        <div class="divider">
+          <span class="divider-text">OR CONTINUE WITH</span>
+        </div>
+
+        <div class="social-buttons">
+          <button class="social-button" (click)="loginWithGoogle()">
+            <ion-icon name="logo-google"></ion-icon>
+            <span>Google</span>
+          </button>
+          
+        </div>
+      </form>
+    </div>
+  </ion-content>
+</ng-template>
+</ng-container>

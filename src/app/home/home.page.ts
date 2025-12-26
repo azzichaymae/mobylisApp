@@ -18,7 +18,7 @@ openRoutePlanner() {
 this.navCtrl.navigateForward('/tabs/search');
 }
 openRecentJourneys() {
-this.navCtrl.navigateForward('/tabs/search');
+this.navCtrl.navigateForward('/tabs/favourite');
 }
 openFavorites() {
 this.navCtrl.navigateForward('/tabs/favourite');

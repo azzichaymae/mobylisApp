@@ -1,0 +1,59 @@
+<div class="modal-container">
+  <div class="modal-header">
+    <ion-icon name="arrow-back" class="back-icon" (click)="closeModal()"></ion-icon>
+    <h2 class="modal-title">{{ title }}</h2>
+    <div class="placeholder"></div>
+  </div>
+
+  <div class="search-section">
+    <div class="search-wrapper">
+      <ion-icon name="search-outline" class="search-icon"></ion-icon>
+      <ion-input
+        [(ngModel)]="searchQuery"
+        (ionInput)="onSearchChange($event)"
+        placeholder="Search stops..."
+        class="search-input"
+        [disabled]="isLoading"
+      ></ion-input>
+      <ion-icon 
+        *ngIf="searchQuery" 
+        name="close-circle" 
+        class="clear-icon" 
+        (click)="clearSearch()"
+      ></ion-icon>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent" color="warning"></ion-spinner>
+    <p>Loading stops...</p>
+  </div>
+
+  <div class="stops-content" *ngIf="!isLoading">
+    <div 
+      class="stop-item" 
+      *ngFor="let stop of filteredStops"
+      (click)="selectStop(stop)"
+      [class.selected]="selectedStop === stop.name"
+    >
+      <div class="stop-icon-wrapper">
+        <ion-icon name="location" class="stop-icon"></ion-icon>
+      </div>
+      <div class="stop-info">
+        <h3 class="stop-name">{{ stop.name }}</h3>
+        <p class="stop-address" *ngIf="stop.address">{{ stop.address }}</p>
+      </div>
+      <ion-icon 
+        *ngIf="selectedStop === stop.name" 
+        name="checkmark-circle" 
+        class="check-icon"
+      ></ion-icon>
+    </div>
+
+    <div class="no-results" *ngIf="filteredStops.length === 0">
+      <ion-icon name="location-outline" class="no-results-icon"></ion-icon>
+      <p>No stops found</p>
+      <span>Try a different search term</span>
+    </div>
+  </div>
+</div>
